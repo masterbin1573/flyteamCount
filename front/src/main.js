@@ -7,21 +7,32 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
 
 import App from './App.vue'
 import router from './router'
+import { useUserStore } from '@/stores/user'
 import './styles/index.scss'
 
-const app = createApp(App)
-
-// 注册 Element Plus 图标
-for (const [key, component] of Object.entries(ElementPlusIcons)) {
-  app.component(key, component)
+// 初始化应用
+async function initApp() {
+  const app = createApp(App)
+  
+  // 注册 Element Plus 图标
+  for (const [key, component] of Object.entries(ElementPlusIcons)) {
+    app.component(key, component)
+  }
+  
+  const pinia = createPinia()
+  app.use(pinia)
+  app.use(router)
+  app.use(ElementPlus, {
+    locale: {
+      name: 'zh-cn'
+    }
+  })
+  
+  // 初始化用户认证状态
+  const userStore = useUserStore()
+  await userStore.initializeAuth()
+  
+  app.mount('#app')
 }
 
-app.use(createPinia())
-app.use(router)
-app.use(ElementPlus, {
-  locale: {
-    name: 'zh-cn'
-  }
-})
-
-app.mount('#app')
+initApp()

@@ -10,10 +10,10 @@
     
     // 配置信息
     const CONFIG = {
-        API_BASE: 'https://api.flyteam.cloud',
-        // API_BASE: 'http://localhost:3000', // 开发环境
+        // API_BASE: 'https://countapi.flyteam.cloud', // 生产环境
+        API_BASE: 'http://localhost:3001', // 开发环境
         VERSION: '2.3.0',
-        DEBUG: true // 开发版启用调试
+        DEBUG: true // 开启调试以便排查问题
     };
 
     // 日志函数
@@ -99,18 +99,28 @@
     function updateElements(stats) {
         if (!stats) return;
 
+        // 调试信息
+        log('更新统计元素', stats);
+        
+        // 确保所有数据都是数字类型
+        const site_pv = parseInt(stats.site_pv) || 0;
+        const site_uv = parseInt(stats.site_uv) || 0;
+        const page_pv = parseInt(stats.page_pv) || 0;
+        
+        log('处理后的数据:', {site_pv, site_uv, page_pv});
+
         const elements = {
             // 站点总访问量
-            'busuanzi_value_site_pv': stats.site_pv || 0,
-            'busuanzi_container_site_pv': stats.site_pv || 0,
+            'busuanzi_value_site_pv': site_pv,
+            'busuanzi_container_site_pv': site_pv,
             
             // 站点总访客数
-            'busuanzi_value_site_uv': stats.site_uv || 0,
-            'busuanzi_container_site_uv': stats.site_uv || 0,
+            'busuanzi_value_site_uv': site_uv,
+            'busuanzi_container_site_uv': site_uv,
             
             // 页面访问量
-            'busuanzi_value_page_pv': stats.page_pv || 0,
-            'busuanzi_container_page_pv': stats.page_pv || 0
+            'busuanzi_value_page_pv': page_pv,
+            'busuanzi_container_page_pv': page_pv
         };
 
         Object.keys(elements).forEach(id => {
@@ -145,9 +155,20 @@
 
     // 动态增长动画
     function animateNumber(element, targetValue, duration = 1000) {
+        // 确保目标值是数字
+        targetValue = parseInt(targetValue) || 0;
+        
+        // 如果目标值为0，直接设置并返回
+        if (targetValue === 0) {
+            element.textContent = '0';
+            return;
+        }
+        
         const startValue = parseInt(element.textContent) || 0;
         const increment = (targetValue - startValue) / (duration / 50);
         let currentValue = startValue;
+        
+        log(`开始动画: ${element.id || 'unknown'}, 从 ${startValue} 到 ${targetValue}`);
 
         const timer = setInterval(() => {
             currentValue += increment;
@@ -155,6 +176,7 @@
                 (increment < 0 && currentValue <= targetValue)) {
                 currentValue = targetValue;
                 clearInterval(timer);
+                log(`动画完成: ${element.id || 'unknown'} = ${targetValue}`);
             }
             element.textContent = formatNumber(Math.round(currentValue));
         }, 50);
@@ -163,19 +185,10 @@
     // 初始化统计
     async function init() {
         log('初始化飞天蒜子统计 v' + CONFIG.VERSION);
-
-        // 先隐藏所有容器元素
-        const containers = ['busuanzi_container_site_pv', 'busuanzi_container_site_uv', 'busuanzi_container_page_pv'];
-        containers.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.style.display = 'none';
-            }
-        });
-
-        // 发送当前页面访问统计
+        
+        // 先发送统计，确保数据被记录
         await sendStats();
-
+        
         // 获取并显示统计数据
         const pageInfo = getPageInfo();
         const stats = await getStats(pageInfo.domain);
@@ -193,7 +206,7 @@
                 }
             });
         }
-
+        
         log('统计初始化完成');
     }
 

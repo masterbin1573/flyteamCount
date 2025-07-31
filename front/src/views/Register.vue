@@ -43,6 +43,19 @@
             />
           </el-form-item>
 
+          <el-form-item prop="domain">
+            <el-input
+              v-model="registerForm.domain"
+              placeholder="网站域名 (例如: example.com)"
+              size="large"
+              prefix-icon="Globe"
+              clearable
+            />
+            <div class="form-tip">
+              请输入您的网站域名，用于统计数据隔离
+            </div>
+          </el-form-item>
+
           <el-form-item prop="password">
             <el-input
               v-model="registerForm.password"
@@ -139,6 +152,7 @@ const isLoading = ref(false)
 const registerForm = reactive({
   username: '',
   email: '',
+  domain: '',
   password: '',
   confirmPassword: '',
   agreement: false
@@ -150,6 +164,16 @@ const validateConfirmPassword = (rule, value, callback) => {
     callback(new Error('请确认密码'))
   } else if (value !== registerForm.password) {
     callback(new Error('两次输入的密码不一致'))
+  } else {
+    callback()
+  }
+}
+
+const validateDomain = (rule, value, callback) => {
+  if (value === '') {
+    callback(new Error('请输入网站域名'))
+  } else if (!/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(value)) {
+    callback(new Error('请输入有效的域名格式 (例如: example.com)'))
   } else {
     callback()
   }
@@ -167,12 +191,15 @@ const validateAgreement = (rule, value, callback) => {
 const registerRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9_]+$/, message: '用户名只能包含字母、数字和下划线', trigger: 'blur' }
+    { min: 2, max: 20, message: '用户名长度在 2 到 20 个字符', trigger: 'blur' },
+    { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9_]+$/, message: '用户名可以包含中文、字母、数字和下划线', trigger: 'blur' }
   ],
   email: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+  ],
+  domain: [
+    { required: true, validator: validateDomain, trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
@@ -232,6 +259,7 @@ const handleRegister = async () => {
     await userStore.register({
       username: registerForm.username,
       email: registerForm.email,
+      domain: registerForm.domain,
       password: registerForm.password
     })
 
@@ -506,5 +534,12 @@ const handleRegister = async () => {
   to {
     opacity: 1;
   }
+}
+
+.form-tip {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 4px;
+  line-height: 1.4;
 }
 </style>

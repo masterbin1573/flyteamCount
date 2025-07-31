@@ -3,17 +3,20 @@ import { ref, computed } from 'vue'
 import api from '@/api'
 
 export const useUserStore = defineStore('user', () => {
-  const user = ref(null)
+  // 初始化时从localStorage恢复用户信息
+  const storedUser = localStorage.getItem('flyteam_user')
+  const user = ref(storedUser ? JSON.parse(storedUser) : null)
   const token = ref(localStorage.getItem('flyteam_token') || '')
 
   const isAuthenticated = computed(() => !!token.value && !!user.value)
 
   // 初始化认证状态
   const initializeAuth = async () => {
-    if (token.value) {
+    if (token.value && !user.value) {
       try {
         const response = await api.auth.getProfile()
         user.value = response.data.user
+        localStorage.setItem('flyteam_user', JSON.stringify(response.data.user))
       } catch (error) {
         console.error('获取用户信息失败:', error)
         logout()
@@ -30,6 +33,7 @@ export const useUserStore = defineStore('user', () => {
       user.value = userData
       token.value = authToken
       localStorage.setItem('flyteam_token', authToken)
+      localStorage.setItem('flyteam_user', JSON.stringify(userData))
       
       return response
     } catch (error) {
@@ -46,6 +50,7 @@ export const useUserStore = defineStore('user', () => {
       user.value = newUser
       token.value = authToken
       localStorage.setItem('flyteam_token', authToken)
+      localStorage.setItem('flyteam_user', JSON.stringify(newUser))
       
       return response
     } catch (error) {
@@ -58,6 +63,7 @@ export const useUserStore = defineStore('user', () => {
     user.value = null
     token.value = ''
     localStorage.removeItem('flyteam_token')
+    localStorage.removeItem('flyteam_user')
   }
 
   // 更新用户信息

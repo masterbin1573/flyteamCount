@@ -44,8 +44,8 @@ const likeSchema = new mongoose.Schema({
   versionKey: false
 });
 
-// 复合索引确保唯一性和查询性能
-likeSchema.index({ domain: 1, path: 1, ipHash: 1 }, { unique: true });
+// 复合索引确保查询性能（移除唯一约束，改用逻辑控制）
+likeSchema.index({ domain: 1, path: 1, ipHash: 1 });
 likeSchema.index({ domain: 1, path: 1, active: 1 });
 likeSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7776000 }); // 90天后自动删除
 

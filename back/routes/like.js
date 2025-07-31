@@ -65,15 +65,30 @@ router.post('/toggle', async (ctx) => {
       await existingLike.save();
       liked = false;
     } else {
-      // 添加点赞
-      const newLike = new Like({
+      // 查找是否有相同记录但被标记为非活动
+      const inactiveLike = await Like.findOne({
         domain,
         path,
         ipHash,
-        uaHash,
-        active: true
+        active: false
       });
-      await newLike.save();
+      
+      if (inactiveLike) {
+        // 重新激活已存在但非活动的记录
+        inactiveLike.active = true;
+        inactiveLike.createdAt = new Date(); // 更新时间
+        await inactiveLike.save();
+      } else {
+        // 添加全新点赞
+        const newLike = new Like({
+          domain,
+          path,
+          ipHash,
+          uaHash,
+          active: true
+        });
+        await newLike.save();
+      }
       liked = true;
     }
 

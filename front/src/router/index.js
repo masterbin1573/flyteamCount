@@ -67,6 +67,15 @@ router.beforeEach(async (to, from, next) => {
     document.title = to.meta.title
   }
   
+  // 如果有token但没有用户信息，先尝试初始化认证状态
+  if (userStore.token && !userStore.user) {
+    try {
+      await userStore.initializeAuth()
+    } catch (error) {
+      console.error('路由守卫中初始化认证失败:', error)
+    }
+  }
+  
   // 检查是否需要认证
   if (to.meta.requiresAuth && !userStore.isAuthenticated) {
     // 如果需要认证但用户未登录，跳转到登录页

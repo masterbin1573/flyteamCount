@@ -8,9 +8,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    minlength: 3,
+    minlength: 2,
     maxlength: 20,
-    trim: true
+    trim: true,
+    validate: {
+      validator: function(v) {
+        // 支持中文、字母、数字和下划线
+        return /^[\u4e00-\u9fa5a-zA-Z0-9_]+$/.test(v);
+      },
+      message: '用户名可以包含中文、字母、数字和下划线'
+    }
   },
   // 邮箱
   email: {
@@ -41,6 +48,20 @@ const userSchema = new mongoose.Schema({
   active: {
     type: Boolean,
     default: true
+  },
+  // 网站域名
+  domain: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true,
+    validate: {
+      validator: function(v) {
+        // 简单的域名验证正则
+        return /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(v);
+      },
+      message: '请输入有效的域名格式'
+    }
   },
   // 最后登录时间
   lastLogin: {

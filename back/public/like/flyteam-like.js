@@ -10,8 +10,8 @@
     
     // 配置信息
     const CONFIG = {
-        API_BASE: 'https://api.flyteam.cloud',
-        // API_BASE: 'http://localhost:3000', // 开发环境
+        // API_BASE: 'https://countapi.flyteam.cloud', // 生产环境
+        API_BASE: 'http://localhost:3001', // 开发环境
         VERSION: '1.0.0',
         DEBUG: false,
         DEBOUNCE_TIME: 1000, // 防抖时间(毫秒)
@@ -109,15 +109,15 @@
     // 获取点赞数量
     async function getLikeCount(path) {
         try {
-            const response = await fetch(`${CONFIG.API_BASE}/api/likes/count?path=${encodeURIComponent(path)}`);
+            const response = await fetch(`${CONFIG.API_BASE}/api/like/status?url=${encodeURIComponent(window.location.href)}`);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
             
             const data = await response.json();
-            log('获取点赞数量成功', data);
-            return data.success ? data.data : null;
+            log('获取点赞状态成功', data);
+            return data.success ? { count: data.data.likeCount, liked: data.data.liked } : null;
         } catch (err) {
             error('获取点赞数量失败:', err);
             return null;
@@ -127,12 +127,12 @@
     // 切换点赞状态
     async function toggleLike(path, title) {
         try {
-            const response = await fetch(`${CONFIG.API_BASE}/api/likes/toggle`, {
+            const response = await fetch(`${CONFIG.API_BASE}/api/like/toggle`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ path, title })
+                body: JSON.stringify({ url: window.location.href })
             });
 
             if (!response.ok) {
@@ -147,9 +147,9 @@
             log('点赞操作成功', data);
             
             if (data.success) {
-                const { liked, count } = data.data;
+                const { liked, likeCount } = data.data;
                 showMessage(liked ? '点赞成功 ❤️' : '取消点赞', liked ? 'success' : 'info');
-                return { liked, count };
+                return { liked, count: likeCount };
             }
             
             return null;
@@ -227,7 +227,8 @@
                 .replace(iconPlaceholder, icon)
                 .replace(countPlaceholder, likeCount.toString());
             
-            element.innerHTML = displayText;
+            // 使用textContent而不是innerHTML以保持按钮样式
+            element.textContent = displayText;
             
             // 更新样式
             if (isLiked) {
@@ -263,9 +264,10 @@
         const selectors = [
             '[data-flyteam-like]',
             '.flyteam-like',
-            '.like-btn',
-            '[id*="like"]',
-            '[class*="like"]'
+            '.like-btn'
+            // 移除过于宽泛的选择器，避免误选和多次初始化
+            // '[id*="like"]',
+            // '[class*="like"]'
         ];
 
         const buttons = new Set();

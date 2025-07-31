@@ -13,14 +13,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'flyteam_secret_key_2023';
  */
 router.post('/register', async (ctx) => {
   try {
-    const { username, email, password } = ctx.request.body;
+    const { username, email, domain, password } = ctx.request.body;
 
     // 验证必填字段
-    if (!username || !email || !password) {
+    if (!username || !email || !domain || !password) {
       ctx.status = 400;
       ctx.body = {
         success: false,
-        message: '用户名、邮箱和密码不能为空'
+        message: '用户名、邮箱、域名和密码不能为空'
       };
       return;
     }
@@ -46,16 +46,33 @@ router.post('/register', async (ctx) => {
       return;
     }
 
-    // 检查用户名和邮箱是否已存在
+    // 验证域名格式
+    const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (!domainRegex.test(domain)) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        message: '域名格式不正确，请输入有效的域名 (例如: example.com)'
+      };
+      return;
+    }
+
+    // 检查用户名、邮箱和域名是否已存在
     const existingUser = await User.findOne({
-      $or: [{ username }, { email }]
+      $or: [{ username }, { email }, { domain }]
     });
 
     if (existingUser) {
       ctx.status = 400;
+      let message = '用户名已存在';
+      if (existingUser.email === email) {
+        message = '邮箱已被注册';
+      } else if (existingUser.domain === domain) {
+        message = '该域名已被注册，每个域名只能注册一个账户';
+      }
       ctx.body = {
         success: false,
-        message: existingUser.username === username ? '用户名已存在' : '邮箱已被注册'
+        message
       };
       return;
     }
@@ -64,6 +81,7 @@ router.post('/register', async (ctx) => {
     const user = new User({
       username,
       email,
+      domain,
       password
     });
 
@@ -74,7 +92,8 @@ router.post('/register', async (ctx) => {
       { 
         userId: user._id,
         username: user.username,
-        email: user.email 
+        email: user.email,
+        domain: user.domain
       },
       JWT_SECRET,
       { expiresIn: '7d' }
@@ -152,7 +171,8 @@ router.post('/login', async (ctx) => {
       { 
         userId: user._id,
         username: user.username,
-        email: user.email 
+        email: user.email,
+        domain: user.domain
       },
       JWT_SECRET,
       { expiresIn: '7d' }

@@ -141,10 +141,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import api from '@/api'
 import * as echarts from 'echarts'
 
 const router = useRouter()
@@ -154,6 +155,7 @@ const userStore = useUserStore()
 const isLoading = ref(false)
 const trendsTimeRange = ref('7d')
 const searchKeyword = ref('')
+const dashboardData = ref(null)
 
 // 图表引用
 const trendsChartRef = ref()
@@ -167,14 +169,33 @@ let geoChart = null
 let browserChart = null
 let deviceChart = null
 
+// 获取仪表板数据
+const fetchDashboardData = async () => {
+  try {
+    isLoading.value = true
+    const response = await api.get('/stats/dashboard')
+    
+    if (response.data && response.data.success) {
+      dashboardData.value = response.data.data
+      updateOverviewStats()
+      updateCharts()
+    }
+  } catch (error) {
+    console.error('获取仪表板数据失败:', error)
+    ElMessage.error('获取数据失败，请稍后重试')
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // 概览统计数据
 const overviewStats = ref([
   {
     key: 'totalViews',
     icon: '👁️',
     label: '总浏览量',
-    value: 128543,
-    change: '+12.5%',
+    value: 0,
+    change: '+0%',
     changeType: 'increase',
     color: '#667eea'
   },
@@ -182,8 +203,8 @@ const overviewStats = ref([
     key: 'totalVisitors',
     icon: '👥',
     label: '总访客数',
-    value: 25687,
-    change: '+8.3%',
+    value: 0,
+    change: '+0%',
     changeType: 'increase',
     color: '#764ba2'
   },
@@ -191,21 +212,32 @@ const overviewStats = ref([
     key: 'todayViews',
     icon: '📊',
     label: '今日浏览量',
-    value: 1256,
-    change: '+15.2%',
+    value: 0,
+    change: '+0%',
     changeType: 'increase',
     color: '#f093fb'
   },
   {
-    key: 'avgTime',
-    icon: '⏱️',
-    label: '平均停留时间',
-    value: 180,
-    change: '-2.1%',
-    changeType: 'decrease',
+    key: 'todayVisitors',
+    icon: '👤',
+    label: '今日访客数',
+    value: 0,
+    change: '+0%',
+    changeType: 'increase',
     color: '#4facfe'
   }
 ])
+
+// 更新概览统计数据
+const updateOverviewStats = () => {
+  if (!dashboardData.value) return
+  
+  const { site } = dashboardData.value
+  overviewStats.value[0].value = site.pv || 0
+  overviewStats.value[1].value = site.uv || 0  
+  overviewStats.value[2].value = site.todayPv || 0
+  overviewStats.value[3].value = site.todayUv || 0
+}
 
 // 访问记录数据
 const visitData = ref([
@@ -369,6 +401,32 @@ const initTrendsChart = () => {
   trendsChart.setOption(option)
 }
 
+// 更新访问趋势图
+const updateTrendsChart = () => {
+  if (!trendsChart || !dashboardData.value) return
+  
+  const { dailyStats } = dashboardData.value
+  const dates = dailyStats.map(item => item.date)
+  const pvData = dailyStats.map(item => item.pv)
+  const uvData = dailyStats.map(item => item.uv)
+  
+  trendsChart.setOption({
+    xAxis: {
+      data: dates
+    },
+    series: [
+      {
+        name: '浏览量',
+        data: pvData
+      },
+      {
+        name: '访客数', 
+        data: uvData
+      }
+    ]
+  })
+}
+
 // 初始化地域分布图
 const initGeoChart = () => {
   if (!geoChartRef.value) return
@@ -417,6 +475,23 @@ const initGeoChart = () => {
   geoChart.setOption(option)
 }
 
+// 更新地域分布图
+const updateGeoChart = () => {
+  if (!geoChart || !dashboardData.value) return
+  
+  const { geoStats } = dashboardData.value
+  const geoData = geoStats.map(item => ({
+    name: item.location,
+    value: item.count
+  }))
+  
+  geoChart.setOption({
+    series: [{
+      data: geoData
+    }]
+  })
+}
+
 // 初始化浏览器分布图
 const initBrowserChart = () => {
   if (!browserChartRef.value) return
@@ -452,6 +527,23 @@ const initBrowserChart = () => {
   browserChart.setOption(option)
 }
 
+// 更新浏览器分布图
+const updateBrowserChart = () => {
+  if (!browserChart || !dashboardData.value) return
+  
+  const { browserStats } = dashboardData.value
+  const browserData = browserStats.map(item => ({
+    name: item.name,
+    value: item.count
+  }))
+  
+  browserChart.setOption({
+    series: [{
+      data: browserData
+    }]
+  })
+}
+
 // 初始化设备类型图
 const initDeviceChart = () => {
   if (!deviceChartRef.value) return
@@ -485,15 +577,46 @@ const initDeviceChart = () => {
   deviceChart.setOption(option)
 }
 
+// 更新设备类型图
+const updateDeviceChart = () => {
+  if (!deviceChart || !dashboardData.value) return
+  
+  const { osStats } = dashboardData.value
+  const deviceData = osStats.map(item => ({
+    name: item.name,
+    value: item.count
+  }))
+  
+  deviceChart.setOption({
+    series: [{
+      data: deviceData
+    }]
+  })
+}
+
 // 监听时间范围变化
 watch(trendsTimeRange, () => {
   // 这里可以重新加载数据并更新图表
   ElMessage.info(`切换到${trendsTimeRange.value}数据`)
 })
 
+// 更新图表数据
+const updateCharts = async () => {
+  await nextTick()
+  updateTrendsChart()
+  updateGeoChart()
+  updateBrowserChart()
+  updateDeviceChart()
+}
+
 // 页面挂载后初始化
 onMounted(async () => {
   await nextTick()
+  
+  // 获取数据
+  await fetchDashboardData()
+  
+  // 初始化图表
   initTrendsChart()
   initGeoChart()
   initBrowserChart()
