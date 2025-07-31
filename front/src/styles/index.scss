@@ -1,0 +1,360 @@
+@import './variables.scss';
+
+// 重置样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: $text-primary;
+  background-color: $bg-light;
+}
+
+// 链接样式
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: darken($primary-color, 10%);
+  }
+}
+
+// 标题样式
+h1, h2, h3, h4, h5, h6 {
+  font-weight: $font-weight-medium;
+  line-height: 1.4;
+  margin-bottom: $spacing-md;
+}
+
+h1 {
+  font-size: $font-size-xxxl;
+}
+
+h2 {
+  font-size: $font-size-xxl;
+}
+
+h3 {
+  font-size: $font-size-xl;
+}
+
+h4 {
+  font-size: $font-size-lg;
+}
+
+h5, h6 {
+  font-size: $font-size-base;
+}
+
+// 段落样式
+p {
+  margin-bottom: $spacing-md;
+  line-height: 1.6;
+}
+
+// 代码样式
+code {
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: $border-radius-small;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+}
+
+pre {
+  background-color: #f5f5f5;
+  padding: $spacing-md;
+  border-radius: $border-radius-base;
+  overflow-x: auto;
+  margin-bottom: $spacing-md;
+  
+  code {
+    background: none;
+    padding: 0;
+  }
+}
+
+// 工具类
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-primary {
+  color: $primary-color;
+}
+
+.text-success {
+  color: $success-color;
+}
+
+.text-warning {
+  color: $warning-color;
+}
+
+.text-danger {
+  color: $danger-color;
+}
+
+.text-muted {
+  color: $text-secondary;
+}
+
+.text-white {
+  color: $text-white;
+}
+
+// 间距工具类
+@for $i from 0 through 5 {
+  .m-#{$i} {
+    margin: #{$i * 8}px;
+  }
+  
+  .mt-#{$i} {
+    margin-top: #{$i * 8}px;
+  }
+  
+  .mr-#{$i} {
+    margin-right: #{$i * 8}px;
+  }
+  
+  .mb-#{$i} {
+    margin-bottom: #{$i * 8}px;
+  }
+  
+  .ml-#{$i} {
+    margin-left: #{$i * 8}px;
+  }
+  
+  .p-#{$i} {
+    padding: #{$i * 8}px;
+  }
+  
+  .pt-#{$i} {
+    padding-top: #{$i * 8}px;
+  }
+  
+  .pr-#{$i} {
+    padding-right: #{$i * 8}px;
+  }
+  
+  .pb-#{$i} {
+    padding-bottom: #{$i * 8}px;
+  }
+  
+  .pl-#{$i} {
+    padding-left: #{$i * 8}px;
+  }
+}
+
+// 布局工具类
+.d-flex {
+  display: flex;
+}
+
+.d-block {
+  display: block;
+}
+
+.d-inline {
+  display: inline;
+}
+
+.d-inline-block {
+  display: inline-block;
+}
+
+.d-none {
+  display: none;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.justify-content-around {
+  justify-content: space-around;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.align-items-start {
+  align-items: flex-start;
+}
+
+.align-items-end {
+  align-items: flex-end;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+// 卡片样式
+.card {
+  background: $bg-white;
+  border-radius: $border-radius-large;
+  box-shadow: $shadow-base;
+  padding: $spacing-lg;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: $shadow-dark;
+    transform: translateY(-2px);
+  }
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: $border-radius-large;
+  box-shadow: $shadow-base;
+}
+
+// 按钮样式
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm $spacing-md;
+  border: none;
+  border-radius: $border-radius-base;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  &.btn-primary {
+    background: $primary-gradient;
+    color: $text-white;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba($primary-color, 0.4);
+    }
+  }
+  
+  &.btn-secondary {
+    background: $bg-white;
+    color: $text-primary;
+    border: 1px solid $border-base;
+    
+    &:hover {
+      background: $bg-light;
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: $breakpoint-sm) {
+  html {
+    font-size: 14px;
+  }
+  
+  .card {
+    padding: $spacing-md;
+  }
+  
+  h1 {
+    font-size: $font-size-xxl;
+  }
+  
+  h2 {
+    font-size: $font-size-xl;
+  }
+  
+  // 隐藏小屏幕不需要的元素
+  .d-sm-none {
+    display: none;
+  }
+}
+
+@media (min-width: $breakpoint-md) {
+  .d-md-block {
+    display: block;
+  }
+  
+  .d-md-flex {
+    display: flex;
+  }
+}
+
+// 动画
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.slide-in-up {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}

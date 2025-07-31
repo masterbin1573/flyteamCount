@@ -1,0 +1,38 @@
+{
+  "name": "flyteam-count-frontend",
+  "version": "1.0.0",
+  "description": "飞天蒜子统计前端应用",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+    "serve": "vite preview --port 3000"
+  },
+  "dependencies": {
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.4",
+    "pinia": "^2.1.6",
+    "element-plus": "^2.4.1",
+    "@element-plus/icons-vue": "^2.1.0",
+    "echarts": "^5.4.3",
+    "axios": "^1.5.0",
+    "dayjs": "^1.11.9",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.3.4",
+    "vite": "^4.4.9",
+    "eslint": "^8.45.0",
+    "eslint-plugin-vue": "^9.15.1",
+    "@vue/eslint-config-prettier": "^8.0.0",
+    "prettier": "^3.0.0",
+    "unplugin-auto-import": "^0.16.6",
+    "unplugin-vue-components": "^0.25.2",
+    "sass": "^1.66.1"
+  },
+  "keywords": ["vue3", "element-plus", "statistics", "analytics", "dashboard"],
+  "author": "flyteam",
+  "license": "MIT"
+}

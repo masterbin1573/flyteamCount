@@ -1,0 +1,74 @@
+// 颜色变量
+$primary-color: #667eea;
+$secondary-color: #764ba2;
+$success-color: #67c23a;
+$warning-color: #e6a23c;
+$danger-color: #f56c6c;
+$info-color: #909399;
+
+// 渐变色
+$primary-gradient: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+$card-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+
+// 文字颜色
+$text-primary: #303133;
+$text-regular: #606266;
+$text-secondary: #909399;
+$text-placeholder: #C0C4CC;
+$text-white: #ffffff;
+
+// 背景颜色
+$bg-white: #ffffff;
+$bg-light: #f8f9fa;
+$bg-dark: #2c3e50;
+
+// 边框颜色
+$border-light: #e4e7ed;
+$border-base: #dcdfe6;
+$border-dark: #d3d4d6;
+
+// 阴影
+$shadow-light: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+$shadow-base: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+$shadow-dark: 0 8px 30px 0 rgba(0, 0, 0, 0.15);
+
+// 圆角
+$border-radius-small: 4px;
+$border-radius-base: 8px;
+$border-radius-large: 12px;
+$border-radius-round: 50%;
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-xxl: 48px;
+
+// 字体大小
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-xxl: 24px;
+$font-size-xxxl: 32px;
+
+// 字重
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// 断点
+$breakpoint-xs: 480px;
+$breakpoint-sm: 768px;
+$breakpoint-md: 992px;
+$breakpoint-lg: 1200px;
+$breakpoint-xl: 1920px;
+
+// 层级
+$z-index-tooltip: 2000;
+$z-index-modal: 3000;
+$z-index-loading: 4000;
