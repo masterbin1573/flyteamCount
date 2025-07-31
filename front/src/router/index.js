@@ -4,10 +4,10 @@ import { useUserStore } from '@/stores/user'
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import('@/views/Home.vue'),
+    name: 'Login',
+    component: () => import('@/views/Login.vue'),
     meta: {
-      title: '飞天蒜子统计 - 免费网站访问统计服务'
+      title: '登录 - 飞天蒜子统计'
     }
   },
   {
@@ -19,14 +19,7 @@ const routes = [
       requiresAuth: true
     }
   },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/Login.vue'),
-    meta: {
-      title: '登录 - 飞天蒜子统计'
-    }
-  },
+
   {
     path: '/register',
     name: 'Register',
@@ -36,27 +29,11 @@ const routes = [
     }
   },
   {
-    path: '/docs',
-    name: 'Docs',
-    component: () => import('@/views/Docs.vue'),
-    meta: {
-      title: '使用文档 - 飞天蒜子统计'
-    }
-  },
-  {
     path: '/preview',
     name: 'Preview',
     component: () => import('@/views/Preview.vue'),
     meta: {
       title: '数据预览 - 飞天蒜子统计'
-    }
-  },
-  {
-    path: '/demo',
-    name: 'Demo',
-    component: () => import('@/views/Demo.vue'),
-    meta: {
-      title: '功能演示 - 飞天蒜子统计'
     }
   },
   {

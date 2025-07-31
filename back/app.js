@@ -6,6 +6,7 @@ const json = require('koa-json');
 const logger = require('koa-logger');
 const serve = require('koa-static');
 const path = require('path');
+const fs = require('fs');
 const mongoose = require('mongoose');
 
 // 导入路由
@@ -62,16 +63,17 @@ app.use(async (ctx, next) => {
   ctx.set('X-Response-Time', `${ms}ms`);
 });
 
+// 根路径处理（index文件夹现在是独立部署的静态站点）
+
 // 挂载路由
 router.use('/api/stats', statsRoutes.routes());
 router.use('/api/auth', authRoutes.routes());
 router.use('/api/like', likeRoutes.routes());
-router.use('/api/likes', likeRoutes.routes());
 
-// API 路由重定向到静态文件
-router.get('/api/stats/script.js', async (ctx) => {
-  ctx.redirect('/busuanzi/2.3/busuanzi.pure.mini.js');
-});
+// 静态文件已通过 koa-static 中间件处理
+// /stats/flyteam-stats.min.js 会自动路由到 public/stats/flyteam-stats.min.js
+// /like/flyteam-like.min.js 会自动路由到 public/like/flyteam-like.min.js
+// 注意：只兼容标签用法，JS路径需要使用本项目的路径
 
 app.use(router.routes());
 app.use(router.allowedMethods());

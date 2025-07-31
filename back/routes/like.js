@@ -11,16 +11,16 @@ const router = new Router();
  */
 router.post('/toggle', async (ctx) => {
   try {
-    const { path, title, url } = ctx.request.body;
-    const currentPath = path || extractPath(url || '');
+    const { url } = ctx.request.body;
     
-    if (!currentPath) {
+    if (!url) {
       ctx.status = 400;
-      ctx.body = { success: false, message: '缺少路径参数' };
+      ctx.body = { success: false, message: '缺少URL参数' };
       return;
     }
 
-    const domain = url ? extractDomain(url) : 'countapi.flyteam.cloud';
+    const domain = extractDomain(url);
+    const path = extractPath(url);
     const clientIP = getClientIP(ctx);
     const userAgent = ctx.get('User-Agent') || '';
     
@@ -31,7 +31,7 @@ router.post('/toggle', async (ctx) => {
     // 防抖检查：同一IP在10秒内只能操作一次
     const recentLike = await Like.findOne({
       domain,
-      path: currentPath,
+      path,
       ipHash,
       createdAt: { $gte: new Date(Date.now() - 10000) } // 10秒内
     });
@@ -51,7 +51,7 @@ router.post('/toggle', async (ctx) => {
     // 查找现有点赞记录
     const existingLike = await Like.findOne({
       domain,
-      path: currentPath,
+      path,
       ipHash,
       active: true
     });
@@ -68,7 +68,7 @@ router.post('/toggle', async (ctx) => {
       // 添加点赞
       const newLike = new Like({
         domain,
-        path: currentPath,
+        path,
         ipHash,
         uaHash,
         active: true
@@ -80,7 +80,7 @@ router.post('/toggle', async (ctx) => {
     // 获取当前点赞数
     likeCount = await Like.countDocuments({
       domain,
-      path: currentPath,
+      path,
       active: true
     });
 
@@ -89,9 +89,9 @@ router.post('/toggle', async (ctx) => {
       message: liked ? '点赞成功' : '取消点赞成功',
       data: {
         liked,
-        count: likeCount,
+        likeCount,
         domain,
-        path: currentPath
+        path
       }
     };
 
@@ -99,52 +99,6 @@ router.post('/toggle', async (ctx) => {
     console.error('点赞操作失败:', error);
     ctx.status = 500;
     ctx.body = { success: false, message: '点赞操作失败' };
-  }
-});
-
-/**
- * 获取点赞数量
- * GET /api/likes/count
- */
-router.get('/count', async (ctx) => {
-  try {
-    const { path, url } = ctx.query;
-    const currentPath = path || extractPath(url || '') || '/';
-    
-    const domain = url ? extractDomain(url) : 'countapi.flyteam.cloud';
-    const clientIP = getClientIP(ctx);
-    const ipHash = hashIP(clientIP);
-
-    // 获取点赞数量
-    const likeCount = await Like.countDocuments({
-      domain,
-      path: currentPath,
-      active: true
-    });
-
-    // 检查当前用户是否已点赞
-    const userLike = await Like.findOne({
-      domain,
-      path: currentPath,
-      ipHash,
-      active: true
-    });
-
-    ctx.body = {
-      success: true,
-      message: '获取点赞数量成功',
-      data: {
-        liked: !!userLike,
-        count: likeCount,
-        domain,
-        path: currentPath
-      }
-    };
-
-  } catch (error) {
-    console.error('获取点赞数量失败:', error);
-    ctx.status = 500;
-    ctx.body = { success: false, message: '获取点赞数量失败' };
   }
 });
 

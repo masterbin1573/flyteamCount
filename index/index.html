@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛸 飞天蒜子统计 - 免费网站访问统计服务</title>
+    <meta name="description" content="免费、可靠、易用的网站访问统计服务，完全兼容不蒜子。提供详细的数据分析面板、图表统计和点赞功能。">
+    <meta name="keywords" content="网站统计,访问统计,不蒜子,PV,UV,数据分析,免费统计">
+    
+    <!-- 引入统计脚本 -->
+    <script async src="//api.flyteam.cloud/stats/flyteam-stats.min.js"></script>
+    <!-- 引入点赞脚本 -->
+    <script async src="//api.flyteam.cloud/like/flyteam-like.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 60px 0 40px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .stats-display {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            color: white;
+            min-width: 150px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        
+        .content-header {
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .content-header h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        
+        .content-body {
+            padding: 40px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 4px solid #4f46e5;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+        
+        .feature-desc {
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        .code-section {
+            background: #1e293b;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            color: white;
+        }
+        
+        .code-title {
+            color: #60a5fa;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .code-block {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .code-comment {
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .tag-example {
+            color: #fbbf24;
+        }
+        
+        .like-demo {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .like-btn {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .like-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .footer a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .footer a:hover {
+            color: white;
+        }
+        
+        .dashboard-link {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .dashboard-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-display {
+                gap: 15px;
+            }
+            
+            .stat-item {
+                padding: 15px 20px;
+                min-width: 120px;
+            }
+            
+            .content-body {
+                padding: 20px;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1>🛸 飞天蒜子统计</h1>
+            <p>免费、可靠、易用的网站访问统计服务，完全兼容不蒜子</p>
+            
+            <!-- 实时统计展示 -->
+            <div class="stats-display">
+                <div class="stat-item">
+                    <div class="stat-number" id="busuanzi_value_site_pv">0</div>
+                    <div class="stat-label">总访问量</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="busuanzi_value_site_uv">0</div>
+                    <div class="stat-label">总访客数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="busuanzi_value_page_pv">0</div>
+                    <div class="stat-label">本页访问</div>
+                </div>
+            </div>
+            
+            <a href="https://countapi.flyteam.cloud" class="dashboard-link">
+                📊 进入数据分析面板
+            </a>
+        </header>
+        
+        <!-- 主要内容 -->
+        <main class="main-content">
+            <div class="content-header">
+                <h2>🚀 快速开始</h2>
+                <p>只需两步，即可为您的网站添加访问统计功能</p>
+            </div>
+            
+            <div class="content-body">
+                <!-- 功能特性 -->
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🚀</div>
+                        <div class="feature-title">快速集成</div>
+                        <div class="feature-desc">一行代码即可集成，支持不蒜子标签格式，无需修改现有代码</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">详细统计</div>
+                        <div class="feature-desc">提供 PV、UV、地域、浏览器等详细数据分析和可视化图表</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-title">隐私保护</div>
+                        <div class="feature-desc">所有敏感信息都经过哈希处理，充分保护用户隐私安全</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💝</div>
+                        <div class="feature-title">完全免费</div>
+                        <div class="feature-desc">永久免费使用，无任何隐藏费用，稳定可靠的服务保障</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">❤️</div>
+                        <div class="feature-title">点赞功能</div>
+                        <div class="feature-desc">一键添加互动点赞功能，增加用户参与度和页面活跃度</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-title">高性能</div>
+                        <div class="feature-desc">优化的数据库设计，CDN加速，快速响应，低延迟体验</div>
+                    </div>
+                </div>
+                
+                <!-- 使用方法 -->
+                <div class="code-section">
+                    <div class="code-title">📝 第一步：引入统计脚本</div>
+                    <div class="code-block">
+<span class="code-comment"><!-- 在您的网页 &lt;head&gt; 或 &lt;body&gt; 中添加以下代码 --></span>
+<span class="tag-example">&lt;script async src="//api.flyteam.cloud/stats/flyteam-stats.min.js"&gt;&lt;/script&gt;</span>
+                    </div>
+                    
+                    <div class="code-title">📋 第二步：添加统计标签</div>
+                    <div class="code-block">
+<span class="code-comment"><!-- 站点总访问量 --></span>
+<span class="tag-example">&lt;span id="busuanzi_container_site_pv"&gt;
+  本站总访问量&lt;span id="busuanzi_value_site_pv"&gt;&lt;/span&gt;次
+&lt;/span&gt;</span>
+
+<span class="code-comment"><!-- 站点总访客数 --></span>
+<span class="tag-example">&lt;span id="busuanzi_container_site_uv"&gt;
+  本站总访客数&lt;span id="busuanzi_value_site_uv"&gt;&lt;/span&gt;人
+&lt;/span&gt;</span>
+
+<span class="code-comment"><!-- 页面访问量 --></span>
+<span class="tag-example">&lt;span id="busuanzi_container_page_pv"&gt;
+  本页访问量&lt;span id="busuanzi_value_page_pv"&gt;&lt;/span&gt;次
+&lt;/span&gt;</span>
+                    </div>
+                    
+                    <div class="code-title">❤️ 第三步：添加点赞功能（可选）</div>
+                    <div class="code-block">
+<span class="code-comment"><!-- 引入点赞脚本 --></span>
+<span class="tag-example">&lt;script async src="//api.flyteam.cloud/like/flyteam-like.min.js"&gt;&lt;/script&gt;</span>
+
+<span class="code-comment"><!-- 添加点赞按钮 --></span>
+<span class="tag-example">&lt;button class="like-btn"&gt;♡ 点赞&lt;/button&gt;
+&lt;div data-flyteam-like&gt;❤️ 喜欢这篇文章&lt;/div&gt;</span>
+                    </div>
+                </div>
+                
+                <!-- 点赞演示 -->
+                <div class="like-demo">
+                    <h3 style="margin-bottom: 20px; color: #92400e;">💖 试试点赞功能</h3>
+                    <p style="margin-bottom: 20px; color: #a16207;">下面的按钮已经集成了点赞功能，点击试试看！</p>
+                    <button class="like-btn" data-flyteam-like>♡ 为本站点赞</button>
+                    <button class="like-btn" data-flyteam-like>👍 推荐给朋友</button>
+                    <p style="margin-top: 15px; font-size: 0.9rem; color: #a16207;">
+                        * 点赞功能需要注册登录后才能使用，现在点击会提示登录
+                    </p>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>© 2024 飞天蒜子统计 | 
+                <a href="https://countapi.flyteam.cloud">数据面板</a> |
+                <a href="mailto:support@flyteam.cloud">技术支持</a> |
+                <a href="https://github.com/flyteam">GitHub</a>
+            </p>
+            <div style="margin-top: 20px; font-size: 0.9rem;">
+                <!-- 页面统计展示 -->
+                <span id="busuanzi_container_site_pv">
+                    本站总访问量 <span id="busuanzi_value_site_pv"></span> 次
+                </span>
+                |
+                <span id="busuanzi_container_site_uv">
+                    本站总访客数 <span id="busuanzi_value_site_uv"></span> 人  
+                </span>
+                |
+                <span id="busuanzi_container_page_pv">
+                    本页访问量 <span id="busuanzi_value_page_pv"></span> 次
+                </span>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

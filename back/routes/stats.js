@@ -7,6 +7,49 @@ const { parseUserAgent, parseGeoLocation, extractDomain, extractPath } = require
 const router = new Router();
 
 /**
+ * 获取全局统计数据
+ * GET /api/stats/global
+ */
+router.get('/global', async (ctx) => {
+  try {
+    const totalSites = await Site.countDocuments();
+    const totalViews = await Visit.countDocuments();
+    const totalVisitors = await Visit.distinct('ip_hash').then(ips => ips.length);
+    
+    // 获取今日访问量
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const todayViews = await Visit.countDocuments({
+      timestamp: {
+        $gte: today,
+        $lt: tomorrow
+      }
+    });
+
+    ctx.body = {
+      success: true,
+      data: {
+        totalSites,
+        totalViews,
+        totalVisitors,
+        todayViews
+      }
+    };
+  } catch (error) {
+    console.error('获取全局统计失败:', error);
+    ctx.status = 500;
+    ctx.body = { 
+      success: false, 
+      message: '获取统计数据失败',
+      error: error.message 
+    };
+  }
+});
+
+/**
  * 记录访问统计
  * POST /api/stats/record
  */
@@ -368,89 +411,6 @@ router.get('/:domain/report', async (ctx) => {
     console.error('获取统计报告失败:', error);
     ctx.status = 500;
     ctx.body = { success: false, message: '获取统计报告失败' };
-  }
-});
-
-/**
- * 获取不蒜子格式的统计数据
- * GET /api/stats/busuanzi/:domain
- */
-router.get('/busuanzi/:domain', async (ctx) => {
-  try {
-    const { domain } = ctx.params;
-    
-    const site = await Site.findOne({ domain });
-    if (!site) {
-      ctx.body = {
-        success: true,
-        data: {
-          site_pv: 1,
-          site_uv: 1,
-          page_pv: 1
-        }
-      };
-      return;
-    }
-
-    ctx.body = {
-      success: true,
-      data: {
-        site_pv: site.pv,
-        site_uv: site.uv,
-        page_pv: site.todayPv
-      }
-    };
-
-  } catch (error) {
-    console.error('获取不蒜子统计失败:', error);
-    ctx.status = 500;
-    ctx.body = { 
-      success: false, 
-      message: '获取统计数据失败'
-    };
-  }
-});
-
-/**
- * 获取全局统计数据
- * GET /api/stats/global
- */
-router.get('/global', async (ctx) => {
-  try {
-    const totalSites = await Site.countDocuments();
-    const totalViews = await Visit.countDocuments();
-    const totalVisitors = await Visit.distinct('ip_hash').then(ips => ips.length);
-    
-    // 获取今日访问量
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const todayViews = await Visit.countDocuments({
-      timestamp: {
-        $gte: today,
-        $lt: tomorrow
-      }
-    });
-
-    ctx.body = {
-      success: true,
-      data: {
-        totalSites,
-        totalViews,
-        totalVisitors,
-        todayViews
-      }
-    };
-  } catch (error) {
-    console.error('获取全局统计失败:', error);
-    ctx.status = 500;
-    ctx.body = { 
-      success: false, 
-      message: '获取统计数据失败',
-      error: error.message 
-    };
   }
 });
 

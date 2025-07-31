@@ -1,0 +1,234 @@
+/**
+ * 飞天蒜子统计 - 兼容不蒜子 (开发版)
+ * 作者: 飞天团队
+ * 版本: 2.3.0
+ * 网址: https://countapi.flyteam.cloud
+ */
+
+(function() {
+    'use strict';
+    
+    // 配置信息
+    const CONFIG = {
+        API_BASE: 'https://api.flyteam.cloud',
+        // API_BASE: 'http://localhost:3000', // 开发环境
+        VERSION: '2.3.0',
+        DEBUG: true // 开发版启用调试
+    };
+
+    // 日志函数
+    function log(...args) {
+        if (CONFIG.DEBUG) {
+            console.log('[飞天蒜子]', ...args);
+        }
+    }
+
+    // 错误处理
+    function error(...args) {
+        console.error('[飞天蒜子]', ...args);
+    }
+
+    // 获取当前页面信息
+    function getPageInfo() {
+        return {
+            url: window.location.href,
+            domain: window.location.hostname,
+            path: window.location.pathname + window.location.search,
+            title: document.title,
+            referrer: document.referrer
+        };
+    }
+
+    // 格式化数字显示
+    function formatNumber(num) {
+        if (typeof num !== 'number') return '0';
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        }
+        return num.toString();
+    }
+
+    // 发送统计请求
+    async function sendStats() {
+        try {
+            const pageInfo = getPageInfo();
+            log('发送统计数据', pageInfo);
+
+            const response = await fetch(`${CONFIG.API_BASE}/api/stats/record`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(pageInfo)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            log('统计数据发送成功', data);
+            return data;
+        } catch (err) {
+            error('发送统计数据失败:', err);
+            return null;
+        }
+    }
+
+    // 获取统计数据
+    async function getStats(domain) {
+        try {
+            const response = await fetch(`${CONFIG.API_BASE}/api/stats/busuanzi/${domain}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            log('获取统计数据成功', data);
+            return data.success ? data.data : null;
+        } catch (err) {
+            error('获取统计数据失败:', err);
+            return null;
+        }
+    }
+
+    // 更新页面显示元素
+    function updateElements(stats) {
+        if (!stats) return;
+
+        const elements = {
+            // 站点总访问量
+            'busuanzi_value_site_pv': stats.site_pv || 0,
+            'busuanzi_container_site_pv': stats.site_pv || 0,
+            
+            // 站点总访客数
+            'busuanzi_value_site_uv': stats.site_uv || 0,
+            'busuanzi_container_site_uv': stats.site_uv || 0,
+            
+            // 页面访问量
+            'busuanzi_value_page_pv': stats.page_pv || 0,
+            'busuanzi_container_page_pv': stats.page_pv || 0
+        };
+
+        Object.keys(elements).forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                const value = elements[id];
+                const formattedValue = formatNumber(value);
+                
+                // 如果是容器元素，显示它
+                if (id.includes('container')) {
+                    element.style.display = '';
+                }
+                
+                // 更新文本内容
+                if (id.includes('value')) {
+                    element.textContent = formattedValue;
+                } else if (element.querySelector(`#${id.replace('container', 'value')}`)) {
+                    // 容器中有value元素，不直接更新容器文本
+                } else {
+                    // 容器中没有独立的value元素，更新容器文本
+                    const textNodes = Array.from(element.childNodes).filter(node => node.nodeType === Node.TEXT_NODE);
+                    if (textNodes.length > 0) {
+                        // 保留原有文本，只替换数字部分
+                        element.innerHTML = element.innerHTML.replace(/\d+/, formattedValue);
+                    }
+                }
+
+                log(`更新元素 ${id}:`, formattedValue);
+            }
+        });
+    }
+
+    // 动态增长动画
+    function animateNumber(element, targetValue, duration = 1000) {
+        const startValue = parseInt(element.textContent) || 0;
+        const increment = (targetValue - startValue) / (duration / 50);
+        let currentValue = startValue;
+
+        const timer = setInterval(() => {
+            currentValue += increment;
+            if ((increment > 0 && currentValue >= targetValue) || 
+                (increment < 0 && currentValue <= targetValue)) {
+                currentValue = targetValue;
+                clearInterval(timer);
+            }
+            element.textContent = formatNumber(Math.round(currentValue));
+        }, 50);
+    }
+
+    // 初始化统计
+    async function init() {
+        log('初始化飞天蒜子统计 v' + CONFIG.VERSION);
+
+        // 先隐藏所有容器元素
+        const containers = ['busuanzi_container_site_pv', 'busuanzi_container_site_uv', 'busuanzi_container_page_pv'];
+        containers.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = 'none';
+            }
+        });
+
+        // 发送当前页面访问统计
+        await sendStats();
+
+        // 获取并显示统计数据
+        const pageInfo = getPageInfo();
+        const stats = await getStats(pageInfo.domain);
+        
+        if (stats) {
+            updateElements(stats);
+            
+            // 添加数字增长动画效果
+            const valueElements = document.querySelectorAll('[id*="busuanzi_value_"]');
+            valueElements.forEach(element => {
+                const value = parseInt(element.textContent) || 0;
+                if (value > 0) {
+                    element.textContent = '0';
+                    setTimeout(() => animateNumber(element, value), 100);
+                }
+            });
+        }
+
+        log('统计初始化完成');
+    }
+
+    // 等待DOM加载完成
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        // DOM已经加载完成，直接执行
+        setTimeout(init, 0);
+    }
+
+    // 页面卸载时记录停留时间
+    window.addEventListener('beforeunload', function() {
+        // 使用sendBeacon发送统计，确保在页面卸载时也能发送
+        if (navigator.sendBeacon) {
+            const pageInfo = getPageInfo();
+            const data = JSON.stringify({
+                ...pageInfo,
+                action: 'leave',
+                duration: Date.now() - (window.flyteamStartTime || Date.now())
+            });
+            
+            navigator.sendBeacon(`${CONFIG.API_BASE}/api/stats/record`, data);
+        }
+    });
+
+    // 记录页面开始时间
+    window.flyteamStartTime = Date.now();
+
+    // 暴露全局对象（兼容性）
+    window.flyteamCount = {
+        version: CONFIG.VERSION,
+        refresh: init,
+        config: CONFIG
+    };
+
+    log('飞天蒜子统计脚本加载完成');
+})();

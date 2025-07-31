@@ -47,15 +47,15 @@
           <!-- 实时统计展示 -->
           <div class="stats-showcase">
             <div class="stat-item">
-              <div class="stat-number" id="home-total-sites">{{ formatNumber(demoStats.totalSites) }}</div>
+              <div class="stat-number">{{ formatNumber(demoStats.totalSites) }}</div>
               <div class="stat-label">接入网站</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number" id="home-total-views">{{ formatNumber(demoStats.totalViews) }}</div>
+              <div class="stat-number">{{ formatNumber(demoStats.totalViews) }}</div>
               <div class="stat-label">总访问量</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number" id="home-today-views">{{ formatNumber(demoStats.todayViews) }}</div>
+              <div class="stat-number">{{ formatNumber(demoStats.todayViews) }}</div>
               <div class="stat-label">今日访问</div>
             </div>
           </div>
@@ -138,7 +138,7 @@
           <div class="compatibility-demo">
             <h4>兼容示例</h4>
             <div class="demo-code">
-              <pre><code>&lt;script async src="//api.flyteam.cloud/busuanzi/2.3/busuanzi.pure.mini.js"&gt;&lt;/script&gt;
+              <pre><code>&lt;script async src="//api.flyteam.cloud/stats/flyteam-stats.min.js"&gt;&lt;/script&gt;
 &lt;span id="busuanzi_container_site_pv"&gt;
   本站总访问量&lt;span id="busuanzi_value_site_pv"&gt;&lt;/span&gt;次
 &lt;/span&gt;</code></pre>
@@ -149,10 +149,10 @@
               <h4>实时演示</h4>
               <div class="demo-stats">
                 <span class="demo-stat">
-                  本站总访问量 <span id="busuanzi_value_site_pv" class="stat-value">{{ demoStats.totalViews }}</span> 次
+                  本站总访问量 <span class="stat-value">{{ demoStats.totalViews }}</span> 次
                 </span>
                 <span class="demo-stat">
-                  本站总访客数 <span id="busuanzi_value_site_uv" class="stat-value">{{ demoStats.totalVisitors }}</span> 人
+                  本站总访客数 <span class="stat-value">{{ demoStats.totalVisitors }}</span> 人
                 </span>
               </div>
             </div>
@@ -178,14 +178,14 @@
           <div class="like-demo-interactive">
             <h4>试试点赞功能</h4>
             <div class="like-buttons">
-              <button class="like-btn" data-flyteam-like data-template="♡ {count}">
+              <button class="like-btn" :class="{ liked: isLiked }" @click="toggleLike">
                 {{ isLiked ? '❤️' : '♡' }} {{ likeCount }}
               </button>
-              <button class="like-btn-alt" data-flyteam-like data-template="👍 {count}">
+              <button class="like-btn-alt">
                 👍 {{ likeCount + 5 }}
               </button>
             </div>
-            <p class="like-note">* 这只是演示，实际点赞需要集成代码</p>
+            <p class="like-note">* 这只是演示，实际点赞需要注册登录并集成代码</p>
           </div>
         </div>
       </div>
@@ -222,7 +222,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 
 // 响应式数据
@@ -274,28 +274,40 @@ const features = [
 const usageSteps = [
   {
     title: '引入统计脚本',
-    description: '在你的网页中添加统计脚本，完全兼容不蒜子',
-    code: `\<script async src="//api.flyteam.cloud/busuanzi/2.3/busuanzi.pure.mini.js"\>\</script\>`
+    description: '在你的网页 &lt;head&gt; 或 &lt;body&gt; 中添加统计脚本，完全兼容不蒜子',
+    code: '<script async src="//api.flyteam.cloud/stats/flyteam-stats.min.js"><\/script>'
   },
   {
     title: '添加统计标签',
-    description: '在需要显示统计数据的地方添加对应的 HTML 标签',
-    code: `<div id="busuanzi_container_site_pv">
-  本站总访问量<span id="busuanzi_value_site_pv"></span>次
-</div>
-<div id="busuanzi_container_site_uv">
-  本站总访客数<span id="busuanzi_value_site_uv"></span>人
-</div>`
+    description: '在需要显示统计数据的地方添加对应的 HTML 标签，与不蒜子完全相同',
+    code: `<!-- 站点总访问量 -->
+<span id="busuanzi_container_site_pv">
+  本站总访问量<span id="busuanzi_value_site_pv"><\/span>次
+<\/span>
+
+<!-- 站点总访客数 -->
+<span id="busuanzi_container_site_uv">
+  本站总访客数<span id="busuanzi_value_site_uv"><\/span>人
+<\/span>
+
+<!-- 页面访问量 -->
+<span id="busuanzi_container_page_pv">
+  本页访问量<span id="busuanzi_value_page_pv"><\/span>次
+<\/span>`
   },
   {
     title: '添加点赞功能（可选）',
-    description: '引入点赞SDK，为你的网站添加点赞功能',
-    code: `\<script async src="//api.flyteam.cloud/flyteam-like/1.0/flyteam-like.min.js"\>\</script\>
-<button data-flyteam-like data-template="♡ {count}">点赞</button>`
+    description: '引入点赞脚本，为页面添加互动点赞功能',
+    code: `<!-- 引入点赞脚本 -->
+<script async src="//api.flyteam.cloud/like/flyteam-like.min.js"><\/script>
+
+<!-- 添加点赞按钮 -->
+<button class="like-btn">♡ 点赞<\/button>
+<div data-flyteam-like>❤️ 喜欢这篇文章<\/div>`
   },
   {
-    title: '查看详细数据（可选）',
-    description: '注册账号可以获得详细的数据分析面板和更多功能',
+    title: '注册账号获取详细数据',
+    description: '注册账号可以获得详细的数据分析面板、图表统计和更多功能',
     code: null
   }
 ]
@@ -338,71 +350,19 @@ const toggleLike = () => {
   }
 }
 
-// 加载SDK脚本
-function loadScript(src, callback) {
-  const script = document.createElement('script')
-  script.src = src
-  script.async = true
-  script.onload = callback
-  script.onerror = () => console.warn('脚本加载失败:', src)
-  document.head.appendChild(script)
-}
-
-// 更新首页统计显示
-function updateHomeStats(stats) {
-  const elements = {
-    'home-total-sites': stats.totalSites,
-    'home-total-views': stats.totalViews, 
-    'home-today-views': stats.todayViews
-  }
-  
-  Object.entries(elements).forEach(([id, value]) => {
-    const el = document.getElementById(id)
-    if (el) {
-      el.textContent = formatNumber(value)
-    }
-  })
-}
-
-// 获取全局统计数据
-function fetchGlobalStats() {
-  fetch('https://api.flyteam.cloud/api/stats/global')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        const stats = data.data
-        demoStats.value = {
-          totalSites: stats.totalSites || 0,
-          totalViews: stats.totalViews || 0,
-          todayViews: stats.todayViews || 0,
-          totalVisitors: stats.totalVisitors || 0
-        }
-        updateHomeStats(stats)
-      }
-    })
-    .catch(error => {
-      console.warn('获取统计数据失败:', error)
-    })
-}
-
-// 组件挂载时加载SDK和数据
+// 模拟实时数据更新
 onMounted(() => {
-  // 加载统计SDK
-  loadScript('https://api.flyteam.cloud/busuanzi/2.3/busuanzi.pure.mini.js', () => {
-    console.log('统计SDK加载完成')
-  })
-  
-  // 加载点赞SDK
-  loadScript('https://api.flyteam.cloud/flyteam-like/1.0/flyteam-like.min.js', () => {
-    console.log('点赞SDK加载完成')
-  })
-  
-  // 获取真实统计数据
-  fetchGlobalStats()
-  
-  // 定期更新数据
-  const interval = setInterval(fetchGlobalStats, 30000)
-  
+  const interval = setInterval(() => {
+    // 随机增加访问量
+    if (Math.random() > 0.7) {
+      demoStats.value.totalViews += Math.floor(Math.random() * 3) + 1
+      demoStats.value.todayViews += Math.floor(Math.random() * 2) + 1
+    }
+    if (Math.random() > 0.9) {
+      demoStats.value.totalVisitors += 1
+    }
+  }, 3000)
+
   // 页面卸载时清除定时器
   onUnmounted(() => {
     clearInterval(interval)

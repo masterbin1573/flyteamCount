@@ -83,7 +83,7 @@
               <div class="after">
                 <h4>飞天蒜子（现在）</h4>
                 <div class="code-block">
-                  <pre><code>&lt;script async src="//api.flyteam.cloud/busuanzi/2.3/busuanzi.pure.mini.js"&gt;&lt;/script&gt;</code></pre>
+                  <pre><code>&lt;script async src="//api.flyteam.cloud/stats/flyteam-stats.min.js"&gt;&lt;/script&gt;</code></pre>
                 </div>
               </div>
             </div>
@@ -237,7 +237,7 @@ const docSections = [
 
 // 代码示例
 const quickStartCode = `<!-- 引入统计脚本 -->
-<script async src="//api.flyteam.cloud/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <script async src="//api.flyteam.cloud/stats/flyteam-stats.min.js"></script>
 
 <!-- 显示统计数据 -->
 <span id="busuanzi_container_site_pv">
@@ -278,8 +278,8 @@ const tagExamples = [
     title: '网站总访问量',
     description: '显示网站从开始统计到现在的总页面浏览量',
     code: `<span id="busuanzi_container_site_pv">
-  本站总访问量<span id="busuanzi_value_site_pv"></span>次
-</span>`,
+  本站总访问量<span id="busuanzi_value_site_pv"><\/span>次
+<\/span>`,
     preview: '本站总访问量<strong>128,543</strong>次'
   },
   {
@@ -287,8 +287,8 @@ const tagExamples = [
     title: '网站总访客数',
     description: '显示网站从开始统计到现在的独立访客总数',
     code: `<span id="busuanzi_container_site_uv">
-  本站总访客数<span id="busuanzi_value_site_uv"></span>人
-</span>`,
+  本站总访客数<span id="busuanzi_value_site_uv"><\/span>人
+<\/span>`,
     preview: '本站总访客数<strong>25,687</strong>人'
   },
   {
@@ -296,8 +296,8 @@ const tagExamples = [
     title: '当前页面访问量',
     description: '显示当前页面的访问次数',
     code: `<span id="busuanzi_container_page_pv">
-  本页面访问量<span id="busuanzi_value_page_pv"></span>次
-</span>`,
+  本页面访问量<span id="busuanzi_value_page_pv"><\/span>次
+<\/span>`,
     preview: '本页面访问量<strong>1,256</strong>次'
   }
 ]
